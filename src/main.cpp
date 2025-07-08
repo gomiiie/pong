@@ -6,65 +6,58 @@ int main() {
 
     int screenWidth = 1080;
     int screenHeight = 720;
-    int ballX = 540;
-    int ballY = 360;
-    int ballR = 20;
-    int ballXspeed = 20;
-    int ballYspeed = 10;
-    int count = 0;
-    int boundXpos = screenWidth - ballR;
-    int boundneg = ballR;
-    int boundYpos = screenHeight - ballR; 
-    Color green = {20, 160, 133, 255}; 
+    int playerScore = 0;
+    int CPUScore = 0;
+    Rectangle p1 = {20, 300, 20, 120};
+    Rectangle p2 = {1060, 300, 20, 120};
 
-    InitWindow(screenWidth, screenHeight, "YO");
+    Vector2 boundsP = {0, screenHeight - p1.height};
+    Vector2 pong = {540, 360};
+    Vector2 pongSpeed = {-12, 12};
+    int pongR = 15;
+    Vector2 pongBounds = {pongR, screenHeight - pongR};
+    
+    InitWindow(screenWidth, screenHeight, "Pong");
     SetTargetFPS(60);
 
     //Game Loop
     while(WindowShouldClose() == false) {
 
         //1. Event Handling
-        if(IsKeyDown(KEY_RIGHT) && ballX < boundXpos) {
-            ballXspeed = 20;
+        if (IsKeyDown(KEY_DOWN) && p1.y < boundsP.y) {
+            p1.y += 16;
         }
-        else if(IsKeyDown(KEY_LEFT) && ballX > boundneg) {
-            ballXspeed = -20;
+        else if (IsKeyDown(KEY_UP) && p1.y > boundsP.x) {
+            p1.y -= 16;
         }
-        else {
-            ballXspeed = 0;
+        if (pong.x - pongR <= 0) {
+            CPUScore++;
+            pong = {540, 360};
         }
-
-        if(IsKeyDown(KEY_UP) && ballY > boundneg) {
-            ballYspeed = -10;
-        }
-        else if(IsKeyDown(KEY_DOWN) && ballY < boundYpos) {
-            ballYspeed = 10;
-        }
-        else {
-            ballYspeed = 0;
+        else if (pong.x - pongR >= screenWidth) {
+            playerScore++;
+            pong = {540, 360};
         }
         //2. Updating Positions
-        ballX += ballXspeed;
-        ballY += ballYspeed;
-
-        //ballY += ballYspeed;
-        /*if (ballX >= 1080) {
-            ballXspeed = -20;
+        if (pong.y > pongBounds.y || pong.y < pongBounds.x) {
+            pongSpeed.y *= -1;
         }
-        if (ballX <= 0) {
-            ballXspeed = 20;
+        if (CheckCollisionCircleRec(pong, pongR, p1) || CheckCollisionCircleRec(pong, pongR, p2)) {
+            pongSpeed.x *= -1; 
         }
-        if (ballY >= 720) {
-            ballYspeed = -10;
-        }
-        if (ballY <= 0) {
-            ballYspeed = 10;
-        }*/
+        pong.x += pongSpeed.x;
+        pong.y += pongSpeed.y;
+        p2.y = pong.y - 5;
 
         //3. Drawing
         BeginDrawing();
-        ClearBackground(green);
-        DrawCircle(ballX, ballY, ballR, WHITE);
+        ClearBackground(BLACK);
+        DrawRectangleRounded(p1, 3, 1, WHITE);
+        DrawRectangleRounded(p2, 3, 1, WHITE);
+        DrawCircleV(pong, pongR, WHITE);
+        DrawText(TextFormat("%i",playerScore), 270, 50, 80, WHITE);
+        DrawText(TextFormat("%i",CPUScore), 810, 50, 80, WHITE);
+
         EndDrawing();
     }
 
